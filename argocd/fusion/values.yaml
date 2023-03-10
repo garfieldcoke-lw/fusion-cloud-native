@@ -1,268 +1,280 @@
-fusion:
-  global:
-    zkReplicaCount: 3
+global:
+  zkReplicaCount: 1
 
-  sql-service:
-    logstashEnabled: false
-    enabled: false
+sql-service:
+  logstashEnabled: false
+  enabled: false
+  nodeSelector: {}
+  replicaCount: 0
+  service:
+    thrift:
+      type: "ClusterIP"
+
+solr:
+  logstashEnabled: false
+  nodeSelector: {}
+  updateStrategy:
+    type: "RollingUpdate"
+  javaMem: "-Xmx2g -Dfusion_node_type=system"
+  solrGcTune: "-XX:+ExitOnOutOfMemoryError -XX:+UseG1GC -XX:-OmitStackTraceInFastThrow -XX:+UseStringDeduplication -XX:+PerfDisableSharedMem -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=150 -XX:+UseLargePages -XX:+AlwaysPreTouch"
+  volumeClaimTemplates:
+    storageSize: "20Gi"
+  replicaCount: 1
+  resources: {}
+  exporter:
+    enabled: "true"
+    podAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9983"
     nodeSelector: {}
-    replicaCount: 0
-    service:
-      thrift:
-        type: "ClusterIP"
+  zkReplicaCount: 1
 
-  solr:
-    logstashEnabled: false
-    nodeSelector: {}
-    updateStrategy:
-      type: "RollingUpdate"
-    javaMem: "-Xmx2g -Dfusion_node_type=system"
-    solrGcTune: "-XX:+ExitOnOutOfMemoryError -XX:+UseG1GC -XX:-OmitStackTraceInFastThrow -XX:+UseStringDeduplication -XX:+PerfDisableSharedMem -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=150 -XX:+UseLargePages -XX:+AlwaysPreTouch"
-    volumeClaimTemplates:
-      storageSize: "20Gi"
-    replicaCount: 1
-    resources: {}
-    exporter:
-      enabled: "true"
-      podAnnotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "9983"
-      nodeSelector: {}
-
-  kafka:
-    image:
-      registry: bitnami
-    replicaCount: 1
-    zkConnectionString: "fusion-zookeeper-0.fusion-zookeeper-headless:2181,fusion-zookeeper-1.fusion-zookeeper-headless:2181,fusion-zookeeper-2.fusion-zookeeper-headless:2181"
-    logstashEnabled: false
-    persistence:
-      size: 10Gi
-    heapOpts: -XX:+ExitOnOutOfMemoryError -XX:+UseContainerSupport -XX:InitialRAMPercentage=30.0 -XX:MaxRAMPercentage=70.0
-    metrics:
-      kafka:
-        enabled: true
-
-  zookeeper:
-    logstashEnabled: false
-    nodeSelector: {}
-    replicaCount: 3
-    persistence:
-      size: 15Gi
-    resources: {}
-    env:
-      ZK_HEAP_SIZE: 1G
-      ZK_PURGE_INTERVAL: 1
-
-  ml-model-service:
-    logstashEnabled: false
-    image:
-      imagePullPolicy: "IfNotPresent"
-    nodeSelector: {}
-    pod:
-      annotations:
-        prometheus.io/port: "8086"
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/actuator/prometheus"
-    modelRepoImpl: fusion
-    fs:
+kafka:
+  image:
+    registry: bitnami
+  replicaCount: 1
+  zkConnectionString: "fusion-zookeeper-0.fusion-zookeeper-headless:2181"
+  logstashEnabled: false
+  persistence:
+    size: 10Gi
+  heapOpts: -XX:+ExitOnOutOfMemoryError -XX:+UseContainerSupport -XX:InitialRAMPercentage=30.0 -XX:MaxRAMPercentage=70.0
+  metrics:
+    kafka:
       enabled: true
 
-  fusion-admin:
-    kafka:
-      bootstrapServers: "fusion-kafka-headless:9092"
-    logstashEnabled: false
-    nodeSelector: {}
-    readinessProbe:
-      initialDelaySeconds: 100
+zookeeper:
+  logstashEnabled: false
+  nodeSelector: {}
+  replicaCount: 1
+  persistence:
+    size: 15Gi
+  resources: {}
+  env:
+    ZK_HEAP_SIZE: 1G
+    ZK_PURGE_INTERVAL: 1
 
-  fusion-indexing:
-    kafka:
-      bootstrapServers: "fusion-kafka-headless:9092"
-    logstashEnabled: false
-    nodeSelector: {}
-    readinessProbe:
-      initialDelaySeconds: 100
-    pod:
-      annotations:
-        prometheus.io/port: "8765"
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/actuator/prometheus"
+ml-model-service:
+  logstashEnabled: false
+  image:
+    imagePullPolicy: "IfNotPresent"
+  nodeSelector: {}
+  pod:
+    annotations:
+      prometheus.io/port: "8086"
+      prometheus.io/scrape: "true"
+      prometheus.io/path: "/actuator/prometheus"
+  modelRepoImpl: fusion
+  fs:
+    enabled: true
+  zkReplicaCount: 1
 
-  query-pipeline:
-    kafka:
-      bootstrapServers: "fusion-kafka-headless:9092"
-    logstashEnabled: false
-    nodeSelector: {}
-    javaToolOptions: "-Xmx3g -Djava.util.concurrent.ForkJoinPool.common.parallelism=1 -Dserver.jetty.max-threads=500 -Dhttp.maxConnections=1000 -XX:+ExitOnOutOfMemoryError"
-    livenessProbe:
-      failureThreshold: 10
-      httpGet:
-        path: /actuator/health
-        port: jetty
-        scheme: HTTP
-      initialDelaySeconds: 45
-      periodSeconds: 15
-      successThreshold: 1
-      timeoutSeconds: 3
-    readinessProbe:
-      failureThreshold: 10
-      httpGet:
-        path: /actuator/health
-        port: jetty
-        scheme: HTTP
-      initialDelaySeconds: 45
-      periodSeconds: 15
-      successThreshold: 1
-      timeoutSeconds: 3
-    pod:
-      annotations:
-        prometheus.io/port: "8787"
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/actuator/prometheus"
+fusion-admin:
+  kafka:
+    bootstrapServers: "fusion-kafka-headless:9092"
+  logstashEnabled: false
+  nodeSelector: {}
+  readinessProbe:
+    initialDelaySeconds: 100
+  zkReplicaCount: 1
 
-  admin-ui:
-    logstashEnabled: false
-    nodeSelector: {}
+fusion-indexing:
+  kafka:
+    bootstrapServers: "fusion-kafka-headless:9092"
+  logstashEnabled: false
+  nodeSelector: {}
+  readinessProbe:
+    initialDelaySeconds: 100
+  pod:
+    annotations:
+      prometheus.io/port: "8765"
+      prometheus.io/scrape: "true"
+      prometheus.io/path: "/actuator/prometheus"
+  zkReplicaCount: 1
 
-  api-gateway:
-    logstashEnabled: false
-    service:
-      externalTrafficPolicy: "Local"
-    nodeSelector: {}
-    javaToolOptions: "-Xms2g -Xmx2g -Djwt.token.user-cache-size=100 -Dhttp.maxConnections=1000 -XX:+ExitOnOutOfMemoryError"
-    pod:
-      annotations:
-        prometheus.io/port: "6764"
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/actuator/prometheus"
+query-pipeline:
+  kafka:
+    bootstrapServers: "fusion-kafka-headless:9092"
+  logstashEnabled: false
+  nodeSelector: {}
+  javaToolOptions: "-Xmx3g -Djava.util.concurrent.ForkJoinPool.common.parallelism=1 -Dserver.jetty.max-threads=500 -Dhttp.maxConnections=1000 -XX:+ExitOnOutOfMemoryError"
+  livenessProbe:
+    failureThreshold: 10
+    httpGet:
+      path: /actuator/health
+      port: jetty
+      scheme: HTTP
+    initialDelaySeconds: 45
+    periodSeconds: 15
+    successThreshold: 1
+    timeoutSeconds: 3
+  readinessProbe:
+    failureThreshold: 10
+    httpGet:
+      path: /actuator/health
+      port: jetty
+      scheme: HTTP
+    initialDelaySeconds: 45
+    periodSeconds: 15
+    successThreshold: 1
+    timeoutSeconds: 3
+  pod:
+    annotations:
+      prometheus.io/port: "8787"
+      prometheus.io/scrape: "true"
+      prometheus.io/path: "/actuator/prometheus"
+  zkReplicaCount: 1
 
-  auth-ui:
-    logstashEnabled: false
-    nodeSelector: {}
+admin-ui:
+  logstashEnabled: false
+  nodeSelector: {}
 
-  classic-rest-service:
-    kafka:
-      bootstrapServers: "fusion-kafka-headless:9092"
-    kafkaSvcUrl: "fusion-kafka-headless:9092"
-    logstashEnabled: false
-    nodeSelector: {}
+api-gateway:
+  logstashEnabled: false
+  service:
+    externalTrafficPolicy: "Local"
+  nodeSelector: {}
+  javaToolOptions: "-Xms2g -Xmx2g -Djwt.token.user-cache-size=100 -Dhttp.maxConnections=1000 -XX:+ExitOnOutOfMemoryError"
+  pod:
+    annotations:
+      prometheus.io/port: "6764"
+      prometheus.io/scrape: "true"
+      prometheus.io/path: "/actuator/prometheus"
+  zkReplicaCount: 1
+  
+auth-ui:
+  logstashEnabled: false
+  nodeSelector: {}
 
-  fusion-resources:
-    logstashEnabled: false
-    nodeSelector: {}
+classic-rest-service:
+  kafka:
+    bootstrapServers: "fusion-kafka-headless:9092"
+  kafkaSvcUrl: "fusion-kafka-headless:9092"
+  logstashEnabled: false
+  nodeSelector: {}
+  zkReplicaCount: 1
 
-  insights:
-    logstashEnabled: false
-    nodeSelector: {}
+fusion-resources:
+  logstashEnabled: false
+  nodeSelector: {}
 
-  job-launcher:
-    logstashEnabled: false
-    nodeSelector: {}
-    pod:
-      annotations:
-        prometheus.io/port: "8083"
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/actuator/prometheus"
+insights:
+  logstashEnabled: false
+  nodeSelector: {}
 
-  job-rest-server:
-    logstashEnabled: false
-    nodeSelector:
-      {}
-    pod:
-      annotations:
-        prometheus.io/port: "8081"
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/actuator/prometheus"
+job-launcher:
+  logstashEnabled: false
+  nodeSelector: {}
+  pod:
+    annotations:
+      prometheus.io/port: "8083"
+      prometheus.io/scrape: "true"
+      prometheus.io/path: "/actuator/prometheus"
+  zkReplicaCount: 1
 
-  connectors:
-    kafka:
-      bootstrapServers: "fusion-kafka-headless:9092"
-    kafkaSvcUrl: "fusion-kafka-headless:9092"
-    logstashEnabled: false
-    nodeSelector: {}
+job-rest-server:
+  logstashEnabled: false
+  nodeSelector:
+    {}
+  pod:
+    annotations:
+      prometheus.io/port: "8081"
+      prometheus.io/scrape: "true"
+      prometheus.io/path: "/actuator/prometheus"
+  zkReplicaCount: 1
 
-  connector-plugin:
-    kafka:
-      bootstrapServers: "fusion-kafka-headless:9092"
-    kafkaSvcUrl: "fusion-kafka-headless:9092"
-    logstashEnabled: false
-    nodeSelector: {}
+connectors:
+  kafka:
+    bootstrapServers: "fusion-kafka-headless:9092"
+  kafkaSvcUrl: "fusion-kafka-headless:9092"
+  logstashEnabled: false
+  nodeSelector: {}
 
-  connectors-backend:
-    kafka:
-      bootstrapServers: "fusion-kafka-headless:9092"
-    kafkaSvcUrl: "fusion-kafka-headless:9092"
-    logstashEnabled: false
-    nodeSelector: {}
+connector-plugin:
+  kafka:
+    bootstrapServers: "fusion-kafka-headless:9092"
+  kafkaSvcUrl: "fusion-kafka-headless:9092"
+  logstashEnabled: false
+  nodeSelector: {}
+  zkReplicaCount: 1
 
-  rules-ui:
-    logstashEnabled: false
-    nodeSelector: {}
+connectors-backend:
+  kafka:
+    bootstrapServers: "fusion-kafka-headless:9092"
+  kafkaSvcUrl: "fusion-kafka-headless:9092"
+  logstashEnabled: false
+  nodeSelector: {}
+  zkReplicaCount: 1
 
-  webapps:
-    logstashEnabled: false
-    livenessProbe:
-      initialDelaySeconds: 60
-    javaToolOptions: "-Xmx1g -Dspring.zipkin.enabled=false -Dspring.sleuth.enabled=false -XX:+ExitOnOutOfMemoryError"
-    nodeSelector: {}
+rules-ui:
+  logstashEnabled: false
+  nodeSelector: {}
 
-  templating:
-    logstashEnabled: false
-    nodeSelector: {}
-    pod:
-      annotations:
-        prometheus.io/port: "5250"
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/actuator/prometheus"
+webapps:
+  logstashEnabled: false
+  livenessProbe:
+    initialDelaySeconds: 60
+  javaToolOptions: "-Xmx1g -Dspring.zipkin.enabled=false -Dspring.sleuth.enabled=false -XX:+ExitOnOutOfMemoryError"
+  nodeSelector: {}
+  zkReplicaCount: 1
 
-  # TODO: To run the config-sync service in publisher mode, provide
-  # your GitHub repo URL, branch, username, and email
-  # and install the GitHub OAuth token in a secret named
-  # config-sync-github-oauth-token
-  # for subscriber mode, enable pulsar and use the "sub" profile
-  # springProfilesOverride: "kubernetes,jwt,fusion,sub", see below
-  #As of July, 2021, config-sync only used internally, not for customer documentation or use.
-  #config-sync:
-  #  enabled: false
-  #  logstashEnabled: false
-  #  pub:
-  #    git:
-  #      repo: TODO_GITHUB_REPO_URL
-  #      alias: fusion-config-sync
-  #      branch: stage
-  #    github:
-  #      username: TODO_GITHUB_USERNAME
-  #      email: TODO_GITHUB_EMAIL
-  #  pulsar:
-  #    enabled: false
-  #  springProfilesOverride: "kubernetes,jwt,fusion,pub"
+templating:
+  logstashEnabled: false
+  nodeSelector: {}
+  pod:
+    annotations:
+      prometheus.io/port: "5250"
+      prometheus.io/scrape: "true"
+      prometheus.io/path: "/actuator/prometheus"
+  zkReplicaCount: 1
 
-  # Uncomment for subscriber mode
-  #config-sync:
-  #  enabled: true
-  #  logstashEnabled: false
-  #  springProfilesOverride: "kubernetes,jwt,fusion,sub"
-  #  sub:
-  #    pollEnabled: false
-  #    git:
-  #      repo: TODO_GITHUB_REPO_URL
-  #      alias: fusion-config-sync
-  #      branch: prod
-  #    github:
-  #      username: TODO_GITHUB_USERNAME
-  #      email: TODO_GITHUB_EMAIL
+# TODO: To run the config-sync service in publisher mode, provide
+# your GitHub repo URL, branch, username, and email
+# and install the GitHub OAuth token in a secret named
+# config-sync-github-oauth-token
+# for subscriber mode, enable pulsar and use the "sub" profile
+# springProfilesOverride: "kubernetes,jwt,fusion,sub", see below
+#As of July, 2021, config-sync only used internally, not for customer documentation or use.
+#config-sync:
+#  enabled: false
+#  logstashEnabled: false
+#  pub:
+#    git:
+#      repo: TODO_GITHUB_REPO_URL
+#      alias: fusion-config-sync
+#      branch: stage
+#    github:
+#      username: TODO_GITHUB_USERNAME
+#      email: TODO_GITHUB_EMAIL
+#  pulsar:
+#    enabled: false
+#  springProfilesOverride: "kubernetes,jwt,fusion,pub"
 
-  tikaserver:
-    logstashEnabled: false
-    extractInlineImages: true
-    replicaCount: 1
-    resources: {}
+# Uncomment for subscriber mode
+#config-sync:
+#  enabled: true
+#  logstashEnabled: false
+#  springProfilesOverride: "kubernetes,jwt,fusion,sub"
+#  sub:
+#    pollEnabled: false
+#    git:
+#      repo: TODO_GITHUB_REPO_URL
+#      alias: fusion-config-sync
+#      branch: prod
+#    github:
+#      username: TODO_GITHUB_USERNAME
+#      email: TODO_GITHUB_EMAIL
 
-  argo:
-    images:
-      server: argocli
-      namespace: argoproj
+tikaserver:
+  logstashEnabled: false
+  extractInlineImages: true
+  replicaCount: 1
+  resources: {}
 
-  seldon-core-operator:
-    crd:
-      create: true
+argo:
+  images:
+    server: argocli
+    namespace: argoproj
+
+seldon-core-operator:
+  crd:
+    create: true
