@@ -1,0 +1,74 @@
+# The kafka  and zookeeper connection strings assumes the release name is called "fusion".
+# TODO, look at using templating for this value.
+
+global:
+  zkReplicaCount: 3
+
+solr:
+  replicaCount: 3
+  zkReplicaCount: 3
+
+kafka:
+  replicaCount: 3
+  zkConnectionString: "fusion-zookeeper-0.fusion-zookeeper-headless:2181,fusion-zookeeper-1.fusion-zookeeper-headless:2181,fusion-zookeeper-2.fusion-zookeeper-headless:2181"
+  
+zookeeper:
+  replicaCount: 3
+  
+ml-model-service:
+  zkReplicaCount: 3
+
+fusion-admin:
+  kafka:
+    bootstrapServers: "fusion-kafka-0.fusion-kafka-headless:9092,fusion-kafka-1.fusion-kafka-headless:9092,fusion-kafka-2.fusion-kafka-headless:9092"
+  zkReplicaCount: 3
+
+fusion-indexing:
+  kafka:
+    bootstrapServers: "fusion-kafka-0.fusion-kafka-headless:9092,fusion-kafka-1.fusion-kafka-headless:9092,fusion-kafka-2.fusion-kafka-headless:9092"
+  zkReplicaCount: 3
+
+query-pipeline:
+  kafka:
+    bootstrapServers: "fusion-kafka-0.fusion-kafka-headless:9092,fusion-kafka-1.fusion-kafka-headless:9092,fusion-kafka-2.fusion-kafka-headless:9092"
+  zkReplicaCount: 3
+
+api-gateway:
+  zkReplicaCount: 3
+  
+classic-rest-service:
+  kafka:
+    bootstrapServers: "fusion-kafka-0.fusion-kafka-headless:9092,fusion-kafka-1.fusion-kafka-headless:9092,fusion-kafka-2.fusion-kafka-headless:9092"
+  kafkaSvcUrl: "fusion-kafka-0.fusion-kafka-headless:9092,fusion-kafka-1.fusion-kafka-headless:9092,fusion-kafka-2.fusion-kafka-headless:9092"
+  zkReplicaCount: 3
+
+job-launcher:
+  zkReplicaCount: 3
+
+job-rest-server:
+  zkReplicaCount: 3
+
+connectors:
+  kafka:
+    bootstrapServers: "fusion-kafka-0.fusion-kafka-headless:9092,fusion-kafka-1.fusion-kafka-headless:9092,fusion-kafka-2.fusion-kafka-headless:9092"
+
+connector-plugin:
+  kafka:
+    bootstrapServers: "fusion-kafka-0.fusion-kafka-headless:9092,fusion-kafka-1.fusion-kafka-headless:9092,fusion-kafka-2.fusion-kafka-headless:9092"
+  kafkaSvcUrl: "fusion-kafka-0.fusion-kafka-headless:9092,fusion-kafka-1.fusion-kafka-headless:9092,fusion-kafka-2.fusion-kafka-headless:9092"
+  zkReplicaCount: 3
+
+connectors-backend:
+  kafka:
+    bootstrapServers: "fusion-kafka-0.fusion-kafka-headless:9092,fusion-kafka-1.fusion-kafka-headless:9092,fusion-kafka-2.fusion-kafka-headless:9092"
+  kafkaSvcUrl: "fusion-kafka-0.fusion-kafka-headless:9092,fusion-kafka-1.fusion-kafka-headless:9092,fusion-kafka-2.fusion-kafka-headless:9092"
+  zkReplicaCount: 3
+
+webapps:
+  zkReplicaCount: 3
+
+templating:
+  zkReplicaCount: 3
+
+tikaserver:
+  replicaCount: 3

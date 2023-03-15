@@ -1,0 +1,71 @@
+global:
+  zkReplicaCount: 1
+
+solr:
+  replicaCount: 1
+  zkReplicaCount: 1
+
+kafka:
+  replicaCount: 1
+  zkConnectionString: "fusion-zookeeper-0.fusion-zookeeper-headless:2181"
+  
+zookeeper:
+  replicaCount: 1
+  
+ml-model-service:
+  zkReplicaCount: 1
+
+fusion-admin:
+  kafka:
+    bootstrapServers: "fusion-kafka-headless:9092"
+  zkReplicaCount: 1
+
+fusion-indexing:
+  kafka:
+    bootstrapServers: "fusion-kafka-headless:9092"
+  zkReplicaCount: 1
+
+query-pipeline:
+  kafka:
+    bootstrapServers: "fusion-kafka-headless:9092"
+  zkReplicaCount: 1
+
+api-gateway:
+  zkReplicaCount: 1
+  
+classic-rest-service:
+  kafka:
+    bootstrapServers: "fusion-kafka-headless:9092"
+  kafkaSvcUrl: "fusion-kafka-headless:9092"
+  zkReplicaCount: 1
+
+job-launcher:
+  zkReplicaCount: 1
+
+job-rest-server:
+  zkReplicaCount: 1
+
+connectors:
+  kafka:
+    bootstrapServers: "fusion-kafka-headless:9092"
+
+connector-plugin:
+  kafka:
+    bootstrapServers: "fusion-kafka-headless:9092"
+  kafkaSvcUrl: "fusion-kafka-headless:9092"
+  zkReplicaCount: 1
+
+connectors-backend:
+  kafka:
+    bootstrapServers: "fusion-kafka-headless:9092"
+  kafkaSvcUrl: "fusion-kafka-headless:9092"
+  zkReplicaCount: 1
+
+webapps:
+  zkReplicaCount: 1
+
+templating:
+  zkReplicaCount: 1
+
+tikaserver:
+  replicaCount: 1
